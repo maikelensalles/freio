@@ -94,11 +94,13 @@ export default function CalendarScreen() {
     setLoading(true);
     const { start, end } = monthRange();
 
+    if (!user) { setLoading(false); return; }
     const [catRes, txRes] = await Promise.all([
       supabase.from('categories').select('*'),
       supabase
         .from('transactions')
         .select('*, categories(name, bucket, icon)')
+        .eq('user_id', user.id)
         .gte('created_at', start)
         .lte('created_at', end)
         .order('created_at', { ascending: false }),

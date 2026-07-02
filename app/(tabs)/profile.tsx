@@ -65,26 +65,30 @@ export default function ProfileScreen() {
   const monthLabel = `${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
 
   async function fetchStats() {
+    if (!user) return;
     const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const end   = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
 
     const { data } = await supabase
       .from('transactions')
-      .select('amount, is_impulse_purchase, categories(name, bucket)')
+      .select('amount, type, is_impulse_purchase, categories(name, bucket)')
+      .eq('user_id', user.id)
       .gte('created_at', start)
       .lte('created_at', end);
 
     if (!data) return;
 
-    const totalMonth   = data.reduce((s, t) => s + Number(t.amount), 0);
-    const totalImpulse = data.filter(t => t.is_impulse_purchase).reduce((s, t) => s + Number(t.amount), 0);
-    const countMonth   = data.length;
+    const expenses = data.filter((t: any) => t.type === 'expense');
 
-    // Categoria com maior gasto
+    const totalMonth   = expenses.reduce((s, t) => s + Number(t.amount), 0);
+    const totalImpulse = expenses.filter(t => t.is_impulse_purchase).reduce((s, t) => s + Number(t.amount), 0);
+    const countMonth   = expenses.length;
+
+    // Categoria com maior gasto (apenas expenses com categoria)
     const catMap: Record<string, number> = {};
-    data.forEach(t => {
-      const name = (t.categories as any)?.name ?? 'Outros';
-      catMap[name] = (catMap[name] ?? 0) + Number(t.amount);
+    expenses.forEach(t => {
+      const name = (t.categories as any)?.name;
+      if (name) catMap[name] = (catMap[name] ?? 0) + Number(t.amount);
     });
     const topCategory = Object.entries(catMap).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
 

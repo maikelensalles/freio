@@ -122,9 +122,11 @@ export default function HomeScreen() {
   }
 
   async function fetchTransactions() {
+    if (!user) return;
     const { data, error } = await supabase
       .from('transactions')
       .select('*, categories(name, bucket, icon)')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(50);
     if (error) {
