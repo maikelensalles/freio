@@ -1,50 +1,95 @@
-# Welcome to your Expo app 👋
+# freio. — Controle Financeiro Pessoal
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+> Aplicativo mobile para evitar compras por impulso e gerenciar finanças pelo método **50-30-20**.
 
-## Get started
+**Desenvolvido por [Maikelen Salles](https://maikelen-dev.web.app/)**
+**Demo:** [freio-app.web.app](https://freio-app.web.app)
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## Sobre o projeto
 
-2. Start the app
+O **freio.** ajuda o usuário a ter consciência de seus gastos em tempo real. Com um termômetro visual baseado no método 50-30-20, é possível acompanhar quanto da renda está sendo gasto em necessidades fixas, variáveis e reserva — e colocar o freio antes de gastar por impulso.
 
-   ```bash
-   npx expo start
-   ```
+**Funcionalidades:**
+- Registro de ganhos (salário, freela, Pix recebido) como fluxo de caixa real
+- Termômetro 50-30-20 calculado sobre os ganhos do mês
+- Atalhos rápidos para lançar gastos recorrentes
+- Marcação de compras por impulso
+- Agenda mensal com breakdown por categoria e bucket
+- Renda Fixa Base + Ganhos Variáveis = Total Disponível do mês
+- Autenticação segura com RLS por usuário (cada um vê apenas seus próprios dados)
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Stack
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+| Tecnologia | Uso |
+|---|---|
+| **React Native** | Framework mobile cross-platform |
+| **Expo** (SDK 54) + **Expo Router** | Build toolchain e navegação baseada em arquivos |
+| **TypeScript** | Tipagem estática em todo o projeto |
+| **Supabase** | Backend as a Service: PostgreSQL, Auth e Row Level Security |
+| **Supabase Auth** | Autenticação por e-mail/senha com sessão persistida |
+| **Row Level Security (RLS)** | Isolamento de dados por usuário no banco |
+| **React Context API** | Estado global de sessão e renda base compartilhados entre telas |
+| **Ionicons** | Ícones via `@expo/vector-icons` |
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## Estrutura principal
 
-```bash
-npm run reset-project
+```
+app/
+  _layout.tsx          # Auth guard + provider raiz
+  login.tsx            # Tela de autenticação
+  (tabs)/
+    index.tsx          # Home: ganhos, termômetro 50-30-20, gastos rápidos
+    calendar.tsx       # Agenda: breakdown por categoria e bucket
+    profile.tsx        # Perfil do usuário
+
+hooks/
+  AppContext.tsx       # Contexto global: sessão, renda base
+
+src/lib/
+  supabase.ts          # Cliente Supabase configurado
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+---
 
-## Learn more
+## Como rodar localmente
 
-To learn more about developing your project with Expo, look at the following resources:
+```bash
+# Instalar dependências
+npm install
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+# Iniciar o servidor de desenvolvimento
+npx expo start
+```
 
-## Join the community
+Abra no [Expo Go](https://expo.dev/go), emulador Android/iOS ou build de desenvolvimento.
 
-Join our community of developers creating universal apps.
+### Variáveis de ambiente
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Crie um arquivo `.env` na raiz com:
+
+```env
+EXPO_PUBLIC_SUPABASE_URL=sua_url_aqui
+EXPO_PUBLIC_SUPABASE_ANON_KEY=sua_chave_aqui
+```
+
+---
+
+## Banco de dados (Supabase)
+
+O projeto utiliza duas tabelas principais com RLS ativo:
+
+- **`categories`** — categorias de gasto (fixos, variáveis, reserva) com ícone e bucket 50-30-20
+- **`transactions`** — transações do usuário com `type: 'income' | 'expense'`, `user_id` e `category_id`
+
+---
+
+## Autora
+
+**Maikelen Salles**
+[maikelen-dev.web.app](https://maikelen-dev.web.app/)
